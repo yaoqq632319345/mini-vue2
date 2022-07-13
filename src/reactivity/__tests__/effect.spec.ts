@@ -1,7 +1,17 @@
-import { add } from '../effect';
+import { effect } from '../effect';
+import { reactive } from '../reactive';
 
 describe('effect', () => {
-  it('test', () => {
-    expect(add(1, 2)).toBe(3);
+  it('effect', () => {
+    const foo = reactive({
+      bar: 1,
+    });
+    let bar;
+    effect(() => {
+      bar = foo.bar + 1;
+    });
+    expect(bar).toBe(2);
+    foo.bar = 2;
+    expect(bar).toBe(3);
   });
 });
