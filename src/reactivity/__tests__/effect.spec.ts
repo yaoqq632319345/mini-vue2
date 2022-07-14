@@ -14,4 +14,17 @@ describe('effect', () => {
     foo.bar = 2;
     expect(bar).toBe(3);
   });
+  it('effect run', () => {
+    const foo = { foo: 10 };
+    const runner = effect(() => {
+      foo.foo++;
+      return 'foo';
+    });
+    expect(foo.foo).toBe(11);
+    const res = runner();
+    console.log(res);
+
+    expect(foo.foo).toBe(12);
+    expect(res).toBe('foo');
+  });
 });
