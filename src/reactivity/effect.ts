@@ -4,15 +4,32 @@ export const effect = (fn, options = {}) => {
   _eff.run();
   return _eff.run.bind(_eff);
 };
+export const stop = (runner) => {
+  // targetMap 清除依赖
+  runner(true);
+};
 
 class ReactiveEffect {
   private _fn: any;
   scheduler: any;
-  constructor(fn: any, { scheduler }: any) {
+  deps: any[] = [];
+  onStop: any;
+  constructor(fn: any, { scheduler, onStop }: any) {
     this._fn = fn;
     this.scheduler = scheduler;
+    this.onStop = onStop;
   }
-  run() {
+  stop() {
+    this.deps.forEach((dep) => {
+      dep.delete(this);
+    });
+  }
+  run(stop = false) {
+    if (stop) {
+      this.stop();
+      this.onStop && this.onStop();
+      return;
+    }
     activeEffect = this;
     return this._fn();
   }
@@ -29,6 +46,7 @@ export function track(target, key) {
   }
   const deps = map.get(key);
   deps.add(activeEffect);
+  activeEffect.deps.push(deps);
 }
 export function trigger(target, key) {
   const deps = targetMaps.get(target).get(key);
