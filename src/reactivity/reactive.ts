@@ -14,3 +14,14 @@ export const reactive = (raw: any) => {
     },
   });
 };
+export const readonly = (raw: any) => {
+  return new Proxy(raw, {
+    get(target, key) {
+      return Reflect.get(target, key);
+    },
+    set(target, key, val) {
+      console.warn('readonly can not set');
+      return false;
+    },
+  });
+};

@@ -22,7 +22,6 @@ describe('effect', () => {
     });
     expect(foo.foo).toBe(11);
     const res = runner();
-    console.log(res);
 
     expect(foo.foo).toBe(12);
     expect(res).toBe('foo');
