@@ -8,4 +8,13 @@ describe('readonly', () => {
     expect(wrap.foo).toBe(1);
     expect(wrap.bar).toBe(2);
   });
+  it('readonly set', () => {
+    console.warn = jest.fn();
+    const user = readonly({
+      age: 18,
+    });
+    user.age++;
+    expect(user.age).toBe(18);
+    expect(console.warn).toBeCalled();
+  });
 });
