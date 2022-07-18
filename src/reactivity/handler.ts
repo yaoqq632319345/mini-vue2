@@ -1,7 +1,16 @@
 import { track, trigger } from './effect';
-
-const creatGetter = (readonly: boolean = false) => {
+export const enum ReactiveMap {
+  ISREACTIVE = '__v__isReactive',
+  ISREADONLY = '__v__isReadonly',
+}
+const creatGetter = (readonly: boolean = false, reactive: boolean = true) => {
   return (target, key) => {
+    if (key === ReactiveMap.ISREADONLY) {
+      return readonly;
+    }
+    if (key === ReactiveMap.ISREACTIVE) {
+      return reactive;
+    }
     const res = Reflect.get(target, key);
     if (!readonly) track(target, key);
     return res;
@@ -19,11 +28,11 @@ const createSetter = (readonly: boolean = false) => {
   };
 };
 export const reactiveHandler = {
-  get: creatGetter(),
+  get: creatGetter(false, true),
   set: createSetter(),
 };
 
 export const readonlyHandler = {
-  get: creatGetter(true),
+  get: creatGetter(true, false),
   set: createSetter(true),
 };
