@@ -7,8 +7,8 @@ export const readonly = (raw: any) => {
   return new Proxy(raw, readonlyHandler);
 };
 export const isReadonly = (raw: any) => {
-  return raw[ReactiveMap.ISREADONLY] || false;
+  return !!raw[ReactiveMap.ISREADONLY];
 };
 export const isReactive = (raw: any) => {
-  return raw[ReactiveMap.ISREACTIVE] || false;
+  return !!raw[ReactiveMap.ISREACTIVE];
 };

@@ -3,13 +3,12 @@ export const enum ReactiveMap {
   ISREACTIVE = '__v__isReactive',
   ISREADONLY = '__v__isReadonly',
 }
-const creatGetter = (readonly: boolean = false, reactive: boolean = true) => {
+const creatGetter = (readonly: boolean = false) => {
   return (target, key) => {
-    if (key === ReactiveMap.ISREADONLY) {
-      return readonly;
-    }
     if (key === ReactiveMap.ISREACTIVE) {
-      return reactive;
+      return !readonly;
+    } else if (key === ReactiveMap.ISREADONLY) {
+      return readonly;
     }
     const res = Reflect.get(target, key);
     if (!readonly) track(target, key);
@@ -28,11 +27,11 @@ const createSetter = (readonly: boolean = false) => {
   };
 };
 export const reactiveHandler = {
-  get: creatGetter(false, true),
+  get: creatGetter(),
   set: createSetter(),
 };
 
 export const readonlyHandler = {
-  get: creatGetter(true, false),
+  get: creatGetter(true),
   set: createSetter(true),
 };
