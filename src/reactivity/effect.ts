@@ -39,7 +39,7 @@ class ReactiveEffect {
 
 const targetMaps = new WeakMap();
 export function track(target, key) {
-  if (!activeEffect.active) return;
+  if (!activeEffect || !activeEffect.active) return;
   if (!targetMaps.get(target)) {
     targetMaps.set(target, new Map());
   }

@@ -1,8 +1,10 @@
+import { reactive } from './reactive';
 import { track, trigger } from './effect';
 export const enum ReactiveMap {
   ISREACTIVE = '__v__isReactive',
   ISREADONLY = '__v__isReadonly',
 }
+const isObject = (raw) => raw !== null && typeof raw === 'object';
 const creatGetter = (readonly: boolean = false) => {
   return (target, key) => {
     if (key === ReactiveMap.ISREACTIVE) {
@@ -12,6 +14,7 @@ const creatGetter = (readonly: boolean = false) => {
     }
     const res = Reflect.get(target, key);
     if (!readonly) track(target, key);
+    if (isObject(res)) return reactive(res);
     return res;
   };
 };
