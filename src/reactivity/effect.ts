@@ -14,6 +14,7 @@ class ReactiveEffect {
   scheduler: any;
   deps: any[] = [];
   onStop: any;
+  active = true;
   constructor(fn: any, { scheduler, onStop }: any) {
     this._fn = fn;
     this.scheduler = scheduler;
@@ -23,6 +24,7 @@ class ReactiveEffect {
     this.deps.forEach((dep) => {
       dep.delete(this);
     });
+    this.active = false;
   }
   run(stop = false) {
     if (stop) {
@@ -37,6 +39,7 @@ class ReactiveEffect {
 
 const targetMaps = new WeakMap();
 export function track(target, key) {
+  if (!activeEffect.active) return;
   if (!targetMaps.get(target)) {
     targetMaps.set(target, new Map());
   }
