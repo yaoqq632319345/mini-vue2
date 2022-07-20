@@ -1,4 +1,10 @@
-import { reactiveHandler, ReactiveMap, readonlyHandler } from './handler';
+import {
+  shallowReadonlyHanlder,
+  reactiveHandler,
+  ReactiveMap,
+  readonlyHandler,
+  shallowReactiveHanlder,
+} from './handler';
 
 export const reactive = (raw: any) => {
   return new Proxy(raw, reactiveHandler);
@@ -11,4 +17,11 @@ export const isReadonly = (raw: any) => {
 };
 export const isReactive = (raw: any) => {
   return !!raw[ReactiveMap.ISREACTIVE];
+};
+export const shallowReadonly = (raw: any) => {
+  return new Proxy(raw, shallowReadonlyHanlder);
+};
+
+export const shallowReactive = (raw: any) => {
+  return new Proxy(raw, shallowReactiveHanlder);
 };

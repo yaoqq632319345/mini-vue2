@@ -48,8 +48,10 @@ export function track(target, key) {
     map.set(key, new Set());
   }
   const deps = map.get(key);
-  deps.add(activeEffect);
-  activeEffect.deps.push(deps);
+  if (!deps.has(activeEffect)) {
+    deps.add(activeEffect);
+    activeEffect.deps.push(deps);
+  }
 }
 export function trigger(target, key) {
   const deps = targetMaps.get(target).get(key);
