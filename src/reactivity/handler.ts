@@ -31,21 +31,25 @@ const createSetter = (readonly: boolean = false) => {
     return res;
   };
 };
+const get = creatGetter();
+const set = createSetter();
 export const reactiveHandler = {
-  get: creatGetter(),
-  set: createSetter(),
+  get,
+  set,
 };
-
+const readonlyGet = creatGetter(true);
+const readonlySet = createSetter(true);
 export const readonlyHandler = {
-  get: creatGetter(true),
-  set: createSetter(true),
+  get: readonlyGet,
+  set: readonlySet,
 };
+const shallowReadonlyGet = creatGetter(true, true);
 export const shallowReadonlyHanlder = {
-  get: creatGetter(true, true),
-  set: creatGetter(true),
+  get: shallowReadonlyGet,
+  set: readonlySet,
 };
-
+const shallowReactiveGet = creatGetter(false, true);
 export const shallowReactiveHanlder = {
-  get: creatGetter(false, true),
-  set: creatGetter(),
+  get: shallowReactiveGet,
+  set,
 };
