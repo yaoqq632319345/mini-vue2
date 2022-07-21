@@ -39,7 +39,6 @@ class ReactiveEffect {
 
 const targetMaps = new WeakMap();
 export function track(target, key) {
-  if (!activeEffect || !activeEffect.active) return;
   if (!targetMaps.get(target)) {
     targetMaps.set(target, new Map());
   }
@@ -48,13 +47,16 @@ export function track(target, key) {
     map.set(key, new Set());
   }
   const deps = map.get(key);
+  trackEffect(deps);
+}
+export function trackEffect(deps) {
+  if (!activeEffect || !activeEffect.active) return;
   if (!deps.has(activeEffect)) {
     deps.add(activeEffect);
     activeEffect.deps.push(deps);
   }
 }
-export function trigger(target, key) {
-  const deps = targetMaps.get(target).get(key);
+export function triggerEffect(deps) {
   for (let dp of deps) {
     if (dp.scheduler) {
       dp.scheduler();
@@ -62,4 +64,8 @@ export function trigger(target, key) {
       dp.run();
     }
   }
+}
+export function trigger(target, key) {
+  const deps = targetMaps.get(target).get(key);
+  triggerEffect(deps);
 }
