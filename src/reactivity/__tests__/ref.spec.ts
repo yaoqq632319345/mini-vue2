@@ -9,12 +9,21 @@ describe('ref', () => {
   });
   it.only('ref effect', () => {
     const count = ref(1);
-    let dummy;
+    let dummy,
+      calls = 0;
     effect(() => {
+      calls++;
       dummy = count.value;
     });
     expect(dummy).toBe(1);
+    expect(calls).toBe(1);
+
     count.value++;
     expect(dummy).toBe(2);
+    expect(calls).toBe(2);
+
+    count.value = 2;
+    expect(dummy).toBe(2);
+    expect(calls).toBe(2);
   });
 });
