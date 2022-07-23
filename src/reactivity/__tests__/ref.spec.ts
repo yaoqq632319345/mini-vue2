@@ -7,7 +7,7 @@ describe('ref', () => {
     count.value++;
     expect(count.value).toBe(2);
   });
-  it.only('ref effect', () => {
+  it('ref effect', () => {
     const count = ref(1);
     let dummy,
       calls = 0;
@@ -25,5 +25,15 @@ describe('ref', () => {
     count.value = 2;
     expect(dummy).toBe(2);
     expect(calls).toBe(2);
+  });
+  it.only('ref obj', () => {
+    const obj = ref({ foo: 1 });
+    let dummy;
+    effect(() => {
+      dummy = obj.value.foo;
+    });
+    expect(dummy).toBe(1);
+    obj.value.foo++;
+    expect(dummy).toBe(2);
   });
 });
