@@ -26,7 +26,7 @@ describe('ref', () => {
     expect(dummy).toBe(2);
     expect(calls).toBe(2);
   });
-  it.only('ref obj', () => {
+  it.skip('ref obj', () => {
     const obj = ref({ foo: 1 });
     let dummy;
     effect(() => {
