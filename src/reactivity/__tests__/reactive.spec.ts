@@ -12,4 +12,10 @@ describe('reactive', () => {
     expect(reac_obj.b.b.b).toBe(2);
     expect(reac_obj.c[0].c).toBe(3);
   });
+  it('reactive smple val', () => {
+    console.warn = jest.fn();
+    const count = reactive(100);
+    expect(count).toBe(100);
+    expect(console.warn).toBeCalled();
+  });
 });

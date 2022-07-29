@@ -1,9 +1,9 @@
 import { reactive } from './reactive';
 import { trackEffect, triggerEffect } from './effect';
+import { isObject } from './shared';
 
 export const ref = (val: any) => new Ref(val);
 export const hasChange = (val, newValue) => !Object.is(val, newValue);
-export const isObject = (val: any) => val !== null && typeof val === 'object';
 class Ref {
   private __value: any;
   private deps: any = new Set();

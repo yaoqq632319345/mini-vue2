@@ -5,9 +5,15 @@ import {
   readonlyHandler,
   shallowReactiveHanlder,
 } from './handler';
+import { isObject } from './shared';
 
 export const reactive = (raw: any) => {
-  return new Proxy(raw, reactiveHandler);
+  if (isObject(raw)) {
+    return new Proxy(raw, reactiveHandler);
+  } else {
+    console.warn('reactive only obj');
+    return raw;
+  }
 };
 export const readonly = (raw: any) => {
   return new Proxy(raw, readonlyHandler);
