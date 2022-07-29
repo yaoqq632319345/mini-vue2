@@ -35,5 +35,11 @@ describe('ref', () => {
     expect(dummy).toBe(1);
     obj.value.foo++;
     expect(dummy).toBe(2);
+    obj.value = {
+      foo: 100,
+    };
+    expect(dummy).toBe(100);
+    obj.value.foo++;
+    expect(dummy).toBe(101);
   });
 });

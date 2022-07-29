@@ -8,15 +8,18 @@ class Ref {
   private __value: any;
   private deps: any = new Set();
   constructor(val: any) {
+    this.setVal(val);
+  }
+  private setVal(val: any) {
     if (isObject(val)) {
       this.__value = reactive(val);
     } else {
       this.__value = val;
     }
   }
+
   get value() {
     /***
-     * TODO track
      * 将activeEffect 放入 this.deps中
      */
     trackEffect(this.deps);
@@ -25,10 +28,9 @@ class Ref {
   set value(newVal) {
     if (!hasChange(newVal, this.__value)) return;
     /***
-     * TODO trigger
      * 遍历 this.deps
      */
-    this.__value = newVal;
+    this.setVal(newVal);
     triggerEffect(this.deps);
   }
 }
