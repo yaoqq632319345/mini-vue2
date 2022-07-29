@@ -31,3 +31,5 @@ export const shallowReadonly = (raw: any) => {
 export const shallowReactive = (raw: any) => {
   return new Proxy(raw, shallowReactiveHanlder);
 };
+
+export const isProxy = (raw) => isReactive(raw) || isReadonly(raw);

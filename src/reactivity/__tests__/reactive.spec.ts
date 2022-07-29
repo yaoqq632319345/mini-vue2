@@ -1,4 +1,4 @@
-import { isReactive, reactive } from './../reactive';
+import { isProxy, isReactive, reactive } from './../reactive';
 describe('reactive', () => {
   it('reactive obj', () => {
     const obj = {
@@ -11,6 +11,8 @@ describe('reactive', () => {
     expect(isReactive(reac_obj.b.b)).toBe(true);
     expect(reac_obj.b.b.b).toBe(2);
     expect(reac_obj.c[0].c).toBe(3);
+
+    expect(isProxy(reac_obj)).toBe(true);
   });
   it('reactive smple val', () => {
     console.warn = jest.fn();
