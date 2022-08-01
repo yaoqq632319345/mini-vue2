@@ -7,6 +7,7 @@ export const hasChange = (val, newValue) => !Object.is(val, newValue);
 class Ref {
   private __value: any;
   private deps: any = new Set();
+  private __is_ref__ = true;
   constructor(val: any) {
     this.setVal(val);
   }
@@ -33,4 +34,12 @@ class Ref {
     this.setVal(newVal);
     triggerEffect(this.deps);
   }
+}
+export function isRef(val) {
+  return !!val['__is_ref__'];
+}
+
+export function unRef(val) {
+  if (isRef(val)) return val.value;
+  return val;
 }
