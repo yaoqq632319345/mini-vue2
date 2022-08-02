@@ -59,7 +59,7 @@ describe('ref', () => {
     expect(unRef(c)).toStrictEqual(b);
   });
   it.only('proxyRefs', () => {
-    const user = {
+    const user: any = {
       age: ref(18),
       name: '王大',
     };
