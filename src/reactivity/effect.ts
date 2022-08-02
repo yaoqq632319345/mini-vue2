@@ -9,7 +9,7 @@ export const stop = (runner) => {
   runner(true);
 };
 
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: any;
   scheduler: any;
   deps: any[] = [];
