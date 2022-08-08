@@ -5,12 +5,37 @@ export const render = (vnode: any, rootContainer) => {
 };
 
 function patch(vnode: any, rootContainer: any) {
-  processComponent(vnode, rootContainer);
+  const { type } = vnode;
+  if (typeof type === 'string') {
+    processElement(vnode, rootContainer);
+  } else {
+    processComponent(vnode, rootContainer);
+  }
 }
+
+function processElement(vnode: any, rootContainer: any) {
+  mountElement(vnode, rootContainer);
+}
+
 function processComponent(vnode: any, container: any) {
   mountComponent(vnode, container);
 }
 
+function mountElement(vnode: any, container: any) {
+  const { type, props, children } = vnode;
+  const el: HTMLElement = document.createElement(type);
+  for (let p in props) {
+    el.setAttribute(p, props[p]);
+  }
+  if (typeof children === 'string') {
+    el.textContent = children;
+  } else if (Array.isArray(children)) {
+    children.forEach((v) => {
+      patch(v, el);
+    });
+  }
+  container.appendChild(el);
+}
 function mountComponent(vnode: any, container: any) {
   // 创建组件实例
   const instance = createComponentInstance(vnode);
