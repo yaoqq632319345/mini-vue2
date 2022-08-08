@@ -23,7 +23,7 @@ function processComponent(vnode: any, container: any) {
 
 function mountElement(vnode: any, container: any) {
   const { type, props, children } = vnode;
-  const el: HTMLElement = document.createElement(type);
+  const el: HTMLElement = (vnode.el = document.createElement(type)); // 处理element vnode 有el属性
   for (let p in props) {
     el.setAttribute(p, props[p]);
   }
@@ -48,6 +48,9 @@ function mountComponent(vnode: any, container: any) {
 
 function setupRenderEffect(instance: any, container: any) {
   // Implement
-  const subTree = instance.render();
+  const subTree = instance.render.call(instance.proxy);
+
   patch(subTree, container);
+  // subTree 子元素 这时的用例是一个element, 所以有el 属性， 赋值给组件实例
+  instance.vnode.el = subTree.el;
 }

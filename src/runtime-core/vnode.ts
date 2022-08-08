@@ -4,6 +4,7 @@ export const createVNode = (type, props?, children?) => {
     type,
     props,
     children,
+    el: null,
   };
   return vnode;
 };
