@@ -26,7 +26,14 @@ function mountElement(vnode: any, container: any) {
   const { type, props, children, shapFlag } = vnode;
   const el: HTMLElement = (vnode.el = document.createElement(type)); // 处理element vnode 有el属性
   for (let p in props) {
-    el.setAttribute(p, props[p]);
+    const val = props[p];
+    const isOn = (k: string) => /^on[A-Z]/.test(k);
+    if (isOn(p)) {
+      const eventName = p.slice(2).toLowerCase();
+      el.addEventListener(eventName, val);
+    } else {
+      el.setAttribute(p, props[p]);
+    }
   }
   if (shapFlag & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children;
