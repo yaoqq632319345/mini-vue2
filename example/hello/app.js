@@ -1,4 +1,14 @@
 import { h } from '../../lib/guide.mini-vue.esm.js';
+const Foo = {
+  setup(props) {
+    console.log(props);
+    props.count++;
+    console.log(props);
+  },
+  render() {
+    return h('h1', {}, `foo:${this.count}`);
+  },
+};
 window.root = null;
 export const App = {
   render() {
@@ -12,8 +22,8 @@ export const App = {
           console.log('click');
         },
       },
-      // [h('p', {}, 'hello'), h('p', {}, 'mini-vue')]
-      'hi,' + this.msg
+      [h('p', {}, `${this.msg}, hello`), h(Foo, { count: 1 })]
+      // 'hi,' + this.msg
     );
   },
   setup() {
