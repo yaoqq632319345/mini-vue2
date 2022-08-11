@@ -36,6 +36,7 @@ function setupStatefulComponent(instance: any): any {
 
   if (setup) {
     // 这里为什么使用浅响应
+    // 猜测 保证props第一层始终指向父组件传入的值
     const setupResult = setup(shallowReadonly(instance.props));
     handleSetupResult(instance, setupResult);
   }
