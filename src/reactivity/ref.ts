@@ -1,6 +1,6 @@
 import { reactive } from './reactive';
 import { trackEffect, triggerEffect } from './effect';
-import { isObject } from './shared';
+import { isObject } from '../shared/shared';
 
 export const ref = (val: any) => new Ref(val);
 export const hasChange = (val, newValue) => !Object.is(val, newValue);

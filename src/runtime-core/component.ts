@@ -1,6 +1,7 @@
 import { shallowReadonly } from './../reactivity/reactive';
 import { initProps } from './componentProps';
 import { PublicInstanceProxyHandlers } from './componentPublicInstance';
+import { emit } from './componentEmits';
 
 export const createComponentInstance = (vnode) => {
   /**
@@ -18,7 +19,9 @@ export const createComponentInstance = (vnode) => {
     type: vnode.type,
     props: {},
     setupState: {},
+    emit: () => {},
   };
+  component.emit = emit.bind(null, component) as any;
   return component;
 };
 export const setupComponent = (instance) => {
@@ -37,7 +40,9 @@ function setupStatefulComponent(instance: any): any {
   if (setup) {
     // 这里为什么使用浅响应
     // 猜测 保证props第一层始终指向父组件传入的值
-    const setupResult = setup(shallowReadonly(instance.props));
+    const setupResult = setup(shallowReadonly(instance.props), {
+      emit: instance.emit,
+    });
     handleSetupResult(instance, setupResult);
   }
 }

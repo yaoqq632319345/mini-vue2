@@ -5,7 +5,7 @@ import {
   readonlyHandler,
   shallowReactiveHanlder,
 } from './handler';
-import { isObject } from './shared';
+import { isObject } from '../shared/shared';
 
 export const reactive = (raw: any) => {
   return createReativeObject(raw, reactiveHandler);
