@@ -1,11 +1,11 @@
 import { ShapeFlags } from '../shared/ShapeFlags';
 
 // props 默认值
-export const createVNode = (type, props = {}, children) => {
+export const createVNode = (type, props?, children?) => {
   const vnode = {
     // type: string时，为tag， obj时，为组件配置对象
     type,
-    props,
+    props: props || {},
     children,
     shapFlag: getShapFlag(type),
     el: null,
@@ -16,6 +16,13 @@ export const createVNode = (type, props = {}, children) => {
   } else if (Array.isArray(children)) {
     // 如果children 是 array ，则此vnode 的shapflag 标记 array_children
     vnode.shapFlag |= ShapeFlags.ARRAY_CHILDREN;
+  }
+  // 如果是个组件，并且children是对象
+  if (
+    vnode.shapFlag & ShapeFlags.STATEFUL_COMPONENT &&
+    typeof children === 'object'
+  ) {
+    vnode.shapFlag |= ShapeFlags.SLOT_CHILDREN;
   }
   return vnode;
 };
