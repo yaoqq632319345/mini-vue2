@@ -1,19 +1,39 @@
 import { ShapeFlags } from '../shared/ShapeFlags';
 import { createComponentInstance, setupComponent } from './component';
-
+import { Fragment, Text } from './vnode';
 export const render = (vnode: any, rootContainer) => {
   patch(vnode, rootContainer);
 };
 
 function patch(vnode: any, rootContainer: any) {
-  const { shapFlag } = vnode;
-  if (shapFlag & ShapeFlags.ELEMENT) {
-    processElement(vnode, rootContainer);
-  } else if (shapFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, rootContainer);
+  const { shapFlag, type } = vnode;
+  // 增加两个类型的处理逻辑
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, rootContainer);
+      break;
+    case Text:
+      processText(vnode, rootContainer);
+      break;
+    default:
+      if (shapFlag & ShapeFlags.ELEMENT) {
+        processElement(vnode, rootContainer);
+      } else if (shapFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, rootContainer);
+      }
   }
 }
-
+// 直接挂载子元素
+function processFragment(vnode: any, rootContainer: any) {
+  const { children } = vnode;
+  mountChildren(children, rootContainer);
+}
+// text 类型直接创建textnode 并插入
+function processText(vnode: any, rootContainer: any) {
+  const { children } = vnode;
+  const textNode = (vnode.el = document.createTextNode(children));
+  rootContainer.appendChild(textNode);
+}
 function processElement(vnode: any, rootContainer: any) {
   mountElement(vnode, rootContainer);
 }
@@ -21,7 +41,7 @@ function processElement(vnode: any, rootContainer: any) {
 function processComponent(vnode: any, container: any) {
   mountComponent(vnode, container);
 }
-
+// 元素挂载流程: 创建dom -> 初始化props、事件，-> 递归子元素
 function mountElement(vnode: any, container: any) {
   const { type, props, children, shapFlag } = vnode;
   const el: HTMLElement = (vnode.el = document.createElement(type)); // 处理element vnode 有el属性
@@ -38,12 +58,17 @@ function mountElement(vnode: any, container: any) {
   if (shapFlag & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children;
   } else if (shapFlag & ShapeFlags.ARRAY_CHILDREN) {
-    children.forEach((v) => {
-      patch(v, el);
-    });
+    mountChildren(children, el);
   }
   container.appendChild(el);
 }
+function mountChildren(children: any, el: HTMLElement) {
+  children.forEach((v) => {
+    patch(v, el);
+  });
+}
+
+// 组件挂载 流程 创建组件实例 -> 调用setup (初始化 props ,slots, 并设置render 方法) -> 处理子元素 (调用组件render方法得到vnode, patch vnode得到真实dom, 并赋值给instance.vnode.el)
 function mountComponent(vnode: any, container: any) {
   // 创建组件实例
   const instance = createComponentInstance(vnode);

@@ -1,5 +1,8 @@
 import { ShapeFlags } from '../shared/ShapeFlags';
 
+// vnode 的type 增加了 Fragment 和 Text 两个类型
+export const Fragment = Symbol('Fragment');
+export const Text = Symbol('Text');
 // props 默认值
 export const createVNode = (type, props?, children?) => {
   const vnode = {
@@ -26,6 +29,10 @@ export const createVNode = (type, props?, children?) => {
   }
   return vnode;
 };
+export function createTextVNode(text: string) {
+  // 创建text类型的vnode, patch时根据type 来处理text
+  return createVNode(Text, {}, text);
+}
 function getShapFlag(type: any) {
   // 根据类型判断vnode 是 组件 还是 元素
   return typeof type === 'string'
