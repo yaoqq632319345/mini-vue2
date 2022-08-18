@@ -3,7 +3,13 @@ import { initProps } from './componentProps';
 import { initSlots } from './componentSlots';
 import { PublicInstanceProxyHandlers } from './componentPublicInstance';
 import { emit } from './componentEmits';
-
+let currentInstance: any = null;
+export function getCurrentInstance() {
+  return currentInstance;
+}
+function setCurrentInstance(i) {
+  currentInstance = i;
+}
 export const createComponentInstance = (vnode) => {
   /**
    * example {
@@ -40,11 +46,13 @@ function setupStatefulComponent(instance: any): any {
   instance.proxy = new Proxy({ _: instance }, PublicInstanceProxyHandlers);
 
   if (setup) {
+    setCurrentInstance(instance);
     // 这里为什么使用浅响应
     // 猜测 保证props第一层始终指向父组件传入的值
     const setupResult = setup(shallowReadonly(instance.props), {
       emit: instance.emit,
     });
+    setCurrentInstance(null);
     handleSetupResult(instance, setupResult);
   }
 }
