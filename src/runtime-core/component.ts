@@ -10,7 +10,7 @@ export function getCurrentInstance() {
 function setCurrentInstance(i) {
   currentInstance = i;
 }
-export const createComponentInstance = (vnode) => {
+export const createComponentInstance = (vnode, parent) => {
   /**
    * example {
    *  vnode: {
@@ -28,6 +28,8 @@ export const createComponentInstance = (vnode) => {
     setupState: {},
     emit: () => {},
     slots: {},
+    parent,
+    provides: parent ? parent.provides : {},
   };
   component.emit = emit.bind(null, component) as any;
   return component;

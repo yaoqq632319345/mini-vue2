@@ -3,11 +3,16 @@ import {
   renderSlots,
   createTextVNode,
   getCurrentInstance,
+  inject,
+  provide,
 } from '../../lib/guide.mini-vue.esm.js';
 const Foo = {
   setup() {
     const i = getCurrentInstance();
-    console.log(i.props);
+    // console.log(i.props);
+    const foo = inject('foo');
+    const bar = inject('bar', 'default---------------------------bar');
+    console.log(foo, bar);
     return {};
   },
   render() {
@@ -50,6 +55,7 @@ export const App = {
     return h('div', {}, [app, foo]);
   },
   setup() {
+    provide('foo', 'provide-foooooooooooooooooo');
     return {};
   },
 };
