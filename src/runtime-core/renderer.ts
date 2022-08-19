@@ -35,7 +35,7 @@ export function createRenderer(options) {
   function processText(vnode: any, rootContainer: any) {
     const { children } = vnode;
     const textNode = (vnode.el = createTextNode(children));
-    rootContainer.appendChild(textNode);
+    insert(textNode, rootContainer);
   }
   function processElement(vnode: any, rootContainer: any, parentComponent) {
     mountElement(vnode, rootContainer, parentComponent);
@@ -64,7 +64,7 @@ export function createRenderer(options) {
     } else if (shapFlag & ShapeFlags.ARRAY_CHILDREN) {
       mountChildren(children, el, parentComponent);
     }
-    container.appendChild(el);
+    insert(el, container);
   }
   function mountChildren(children: any, el: HTMLElement, parentComponent) {
     children.forEach((v) => {
