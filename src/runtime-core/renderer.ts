@@ -1,7 +1,10 @@
 import { ShapeFlags } from '../shared/ShapeFlags';
 import { createComponentInstance, setupComponent } from './component';
 import { Fragment, Text } from './vnode';
-export const render = (vnode: any, rootContainer) => {
+// 将render封装， 内部dom方法，全部由外部传入
+export function createRenderer(options) {
+  const {createElement, patchProp, insert, createTextNode} = options
+function render (vnode: any, rootContainer) {
   patch(vnode, rootContainer, null);
 };
 
@@ -31,7 +34,7 @@ function processFragment(vnode: any, rootContainer: any, parentComponent) {
 // text 类型直接创建textnode 并插入
 function processText(vnode: any, rootContainer: any) {
   const { children } = vnode;
-  const textNode = (vnode.el = document.createTextNode(children));
+  const textNode = (vnode.el = createTextNode(children));
   rootContainer.appendChild(textNode);
 }
 function processElement(vnode: any, rootContainer: any, parentComponent) {
@@ -44,16 +47,17 @@ function processComponent(vnode: any, container: any, parentComponent) {
 // 元素挂载流程: 创建dom -> 初始化props、事件，-> 递归子元素
 function mountElement(vnode: any, container: any, parentComponent) {
   const { type, props, children, shapFlag } = vnode;
-  const el: HTMLElement = (vnode.el = document.createElement(type)); // 处理element vnode 有el属性
+  const el: HTMLElement = (vnode.el = createElement(type)); // 处理element vnode 有el属性
   for (let p in props) {
     const val = props[p];
-    const isOn = (k: string) => /^on[A-Z]/.test(k);
-    if (isOn(p)) {
-      const eventName = p.slice(2).toLowerCase();
-      el.addEventListener(eventName, val);
-    } else {
-      el.setAttribute(p, props[p]);
-    }
+    patchProp(el, p, val)
+    // const isOn = (k: string) => /^on[A-Z]/.test(k);
+    // if (isOn(p)) {
+    //   const eventName = p.slice(2).toLowerCase();
+    //   el.addEventListener(eventName, val);
+    // } else {
+    //   el.setAttribute(p, props[p]);
+    // }
   }
   if (shapFlag & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children;
@@ -86,4 +90,9 @@ function setupRenderEffect(instance: any, container: any) {
   patch(subTree, container, instance);
   // subTree 子元素 这时的用例是一个element, 所以有el 属性， 赋值给组件实例
   instance.vnode.el = subTree.el;
+}
+
+  return {
+    render
+  }
 }
