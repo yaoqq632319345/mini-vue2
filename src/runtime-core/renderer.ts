@@ -1,5 +1,6 @@
 import { ShapeFlags } from '../shared/ShapeFlags';
 import { createComponentInstance, setupComponent } from './component';
+import { createAppAPI } from './createApp';
 import { Fragment, Text } from './vnode';
 // 将render封装， 内部dom方法，全部由外部传入
 export function createRenderer(options) {
@@ -92,7 +93,10 @@ export function createRenderer(options) {
     instance.vnode.el = subTree.el;
   }
 
+  // 所以这里需要返回一个带有createApp 方法的对象
+  // 这里的createApp 方法，其实就是原先的createApp 方法
+  // 调用createAppAPI,将render 传入， 获得原先的createApp方法
   return {
-    render,
+    createApp: createAppAPI(render),
   };
 }

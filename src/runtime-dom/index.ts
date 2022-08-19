@@ -27,3 +27,8 @@ const renderer = createRenderer({
   insert,
   createTextNode,
 });
+
+// 原先对外暴露的方法，改到了这里，这里其实调的createRenderer 返回对象中的createApp方法
+export function createApp(...args: any[]) {
+  return renderer.createApp(...args);
+}
