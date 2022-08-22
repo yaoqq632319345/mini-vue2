@@ -1,3 +1,4 @@
+import { effect } from './../reactivity/effect';
 import { ShapeFlags } from '../shared/ShapeFlags';
 import { createComponentInstance, setupComponent } from './component';
 import { createAppAPI } from './createApp';
@@ -11,44 +12,53 @@ export function createRenderer(options) {
     createTextNode: hostCreateTextNode,
   } = options;
   function render(vnode: any, rootContainer) {
-    patch(vnode, rootContainer, null);
+    patch(null, vnode, rootContainer, null);
   }
 
-  function patch(vnode: any, rootContainer: any, parentComponent) {
-    const { shapFlag, type } = vnode;
+  // n1代表old vnode
+  function patch(n1, n2, rootContainer: any, parentComponent) {
+    const { shapFlag, type } = n2;
     // 增加两个类型的处理逻辑
     switch (type) {
       case Fragment:
-        processFragment(vnode, rootContainer, parentComponent);
+        processFragment(n1, n2, rootContainer, parentComponent);
         break;
       case Text:
-        processText(vnode, rootContainer);
+        processText(n1, n2, rootContainer);
         break;
       default:
         if (shapFlag & ShapeFlags.ELEMENT) {
-          processElement(vnode, rootContainer, parentComponent);
+          processElement(n1, n2, rootContainer, parentComponent);
         } else if (shapFlag & ShapeFlags.STATEFUL_COMPONENT) {
-          processComponent(vnode, rootContainer, parentComponent);
+          processComponent(n1, n2, rootContainer, parentComponent);
         }
     }
   }
   // 直接挂载子元素
-  function processFragment(vnode: any, rootContainer: any, parentComponent) {
-    const { children } = vnode;
+  function processFragment(n1, n2, rootContainer: any, parentComponent) {
+    const { children } = n2;
     mountChildren(children, rootContainer, parentComponent);
   }
   // text 类型直接创建textnode 并插入
-  function processText(vnode: any, rootContainer: any) {
-    const { children } = vnode;
-    const textNode = (vnode.el = hostCreateTextNode(children));
+  function processText(n1, n2: any, rootContainer: any) {
+    const { children } = n2;
+    const textNode = (n2.el = hostCreateTextNode(children));
     hostInsert(textNode, rootContainer);
   }
-  function processElement(vnode: any, rootContainer: any, parentComponent) {
-    mountElement(vnode, rootContainer, parentComponent);
+  function processElement(n1, n2: any, rootContainer: any, parentComponent) {
+    if (!n1) {
+      // 如果n1 不存在，挂载流程
+      mountElement(n2, rootContainer, parentComponent);
+    } else {
+      patchElement(n1, n2, rootContainer);
+    }
+  }
+  function patchElement(n1, n2, container) {
+    console.log('element update');
   }
 
-  function processComponent(vnode: any, container: any, parentComponent) {
-    mountComponent(vnode, container, parentComponent);
+  function processComponent(n1, n2: any, container: any, parentComponent) {
+    mountComponent(n2, container, parentComponent);
   }
   // 元素挂载流程: 创建dom -> 初始化props、事件，-> 递归子元素
   function mountElement(vnode: any, container: any, parentComponent) {
@@ -74,7 +84,7 @@ export function createRenderer(options) {
   }
   function mountChildren(children: any, el: HTMLElement, parentComponent) {
     children.forEach((v) => {
-      patch(v, el, parentComponent);
+      patch(null, v, el, parentComponent);
     });
   }
 
@@ -86,16 +96,36 @@ export function createRenderer(options) {
     setupComponent(instance);
 
     // 处理子节点
+    // 只有组件才有更新机制
     setupRenderEffect(instance, container);
   }
 
   function setupRenderEffect(instance: any, container: any) {
-    // Implement
-    const subTree = instance.render.call(instance.proxy);
-
-    patch(subTree, container, instance);
-    // subTree 子元素 这时的用例是一个element, 所以有el 属性， 赋值给组件实例
-    instance.vnode.el = subTree.el;
+    // 在处理子元素之前需要注册 effect 副作用函数， 将activeEffect 置成当前组件的更新函数，在处理子元素时，触发响应式对象的get时，会将 activeEffect 与响应式对象 通过targetMaps 形成联系，当响应式变量发生变化时，可以通过targetMap 拿到组件更新函数，从而执行更新
+    // 现在要做的就是写好更新函数就可以了
+    effect(() => {
+      if (!instance.isMounted) {
+        // 首次挂载
+        // 这里保存一下子树, 保存到instance.subTree上，下次更新时需要取出，做diff
+        const subTree = (instance.subTree = instance.render.call(
+          instance.proxy
+        ));
+        // 首次挂载 n1 为null
+        patch(null, subTree, container, instance);
+        // subTree 子元素 这时的用例是一个element, 所以有el 属性， 赋值给组件实例
+        instance.vnode.el = subTree.el;
+        instance.isMounted = true;
+      } else {
+        // 更新流程
+        const preSubTree = instance.subTree; // 获取更新前的vnode
+        // 重新调用render 获取新的vnode
+        const subTree = (instance.subTree = instance.render.call(
+          instance.proxy
+        ));
+        patch(preSubTree, subTree, container, instance);
+        instance.vnode.el = subTree.el;
+      }
+    });
   }
 
   // 所以这里需要返回一个带有createApp 方法的对象
