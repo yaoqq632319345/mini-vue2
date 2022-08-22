@@ -3,6 +3,7 @@ import { ShapeFlags } from '../shared/ShapeFlags';
 import { createComponentInstance, setupComponent } from './component';
 import { createAppAPI } from './createApp';
 import { Fragment, Text } from './vnode';
+import { EMPTY_OBJ } from '../shared/shared';
 // 将render封装， 内部dom方法，全部由外部传入
 export function createRenderer(options) {
   const {
@@ -55,6 +56,25 @@ export function createRenderer(options) {
   }
   function patchElement(n1, n2, container) {
     console.log('element update');
+    const oldProps = n1.props || EMPTY_OBJ;
+    const newProps = n2.props || EMPTY_OBJ;
+    const el = (n2.el = n1.el);
+    patchProps(el, oldProps, newProps);
+  }
+  function patchProps(el, oldProps, newProps) {
+    if (oldProps === newProps) return;
+    for (let k in newProps) {
+      const newV = newProps[k];
+      const oldV = oldProps[k];
+      if (newV !== oldV) {
+        hostPatchProp(el, k, newV, oldV);
+      }
+    }
+    for (let k in oldProps) {
+      if (!(k in newProps)) {
+        hostPatchProp(el, k, null, oldProps[k]);
+      }
+    }
   }
 
   function processComponent(n1, n2: any, container: any, parentComponent) {
@@ -66,7 +86,7 @@ export function createRenderer(options) {
     const el: HTMLElement = (vnode.el = hostCreateElement(type)); // 处理element vnode 有el属性
     for (let p in props) {
       const val = props[p];
-      hostPatchProp(el, p, val);
+      hostPatchProp(el, p, val, null);
       // const isOn = (k: string) => /^on[A-Z]/.test(k);
       // if (isOn(p)) {
       //   const eventName = p.slice(2).toLowerCase();
