@@ -5,7 +5,7 @@ export function createAppAPI(render) {
     return {
       mount(rootContainer) {
         const vnode = createVNode(rootComponent);
-        render(vnode, document.querySelector(rootContainer));
+        render(vnode, rootContainer);
       },
     };
   };

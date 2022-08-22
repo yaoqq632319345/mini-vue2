@@ -4,7 +4,12 @@ import { createAppAPI } from './createApp';
 import { Fragment, Text } from './vnode';
 // 将render封装， 内部dom方法，全部由外部传入
 export function createRenderer(options) {
-  const { createElement, patchProp, insert, createTextNode } = options;
+  const {
+    createElement: hostCreateElement,
+    patchProp: hostPatchProp,
+    insert: hostInsert,
+    createTextNode: hostCreateTextNode,
+  } = options;
   function render(vnode: any, rootContainer) {
     patch(vnode, rootContainer, null);
   }
@@ -35,8 +40,8 @@ export function createRenderer(options) {
   // text 类型直接创建textnode 并插入
   function processText(vnode: any, rootContainer: any) {
     const { children } = vnode;
-    const textNode = (vnode.el = createTextNode(children));
-    insert(textNode, rootContainer);
+    const textNode = (vnode.el = hostCreateTextNode(children));
+    hostInsert(textNode, rootContainer);
   }
   function processElement(vnode: any, rootContainer: any, parentComponent) {
     mountElement(vnode, rootContainer, parentComponent);
@@ -48,10 +53,10 @@ export function createRenderer(options) {
   // 元素挂载流程: 创建dom -> 初始化props、事件，-> 递归子元素
   function mountElement(vnode: any, container: any, parentComponent) {
     const { type, props, children, shapFlag } = vnode;
-    const el: HTMLElement = (vnode.el = createElement(type)); // 处理element vnode 有el属性
+    const el: HTMLElement = (vnode.el = hostCreateElement(type)); // 处理element vnode 有el属性
     for (let p in props) {
       const val = props[p];
-      patchProp(el, p, val);
+      hostPatchProp(el, p, val);
       // const isOn = (k: string) => /^on[A-Z]/.test(k);
       // if (isOn(p)) {
       //   const eventName = p.slice(2).toLowerCase();
@@ -65,7 +70,7 @@ export function createRenderer(options) {
     } else if (shapFlag & ShapeFlags.ARRAY_CHILDREN) {
       mountChildren(children, el, parentComponent);
     }
-    insert(el, container);
+    hostInsert(el, container);
   }
   function mountChildren(children: any, el: HTMLElement, parentComponent) {
     children.forEach((v) => {

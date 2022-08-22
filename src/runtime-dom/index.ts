@@ -29,6 +29,6 @@ const renderer = createRenderer({
 });
 
 // 原先对外暴露的方法，改到了这里，这里其实调的createRenderer 返回对象中的createApp方法
-export function createApp(...args: any[]) {
-  return renderer.createApp(...args);
+export function createApp(args, ...other) {
+  return renderer.createApp(args, ...other);
 }
