@@ -25,11 +25,22 @@ function createTextNode(text) {
   return document.createTextNode(text);
 }
 
+function remove(el: HTMLElement) {
+  const parent = el.parentNode;
+  if (parent) {
+    parent.removeChild(el);
+  }
+}
+function setElementText(el: HTMLElement, text: string) {
+  el.textContent = text;
+}
 const renderer = createRenderer({
   createElement,
   patchProp,
   insert,
   createTextNode,
+  remove,
+  setElementText,
 });
 
 // 原先对外暴露的方法，改到了这里，这里其实调的createRenderer 返回对象中的createApp方法
