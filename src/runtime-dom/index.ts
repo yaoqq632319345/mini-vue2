@@ -18,8 +18,8 @@ function patchProp(el, k, val, oldVal) {
     }
   }
 }
-function insert(el, parent) {
-  parent.append(el);
+function insert(el, parent, anchor) {
+  (parent as HTMLElement).insertBefore(el, anchor);
 }
 function createTextNode(text) {
   return document.createTextNode(text);
