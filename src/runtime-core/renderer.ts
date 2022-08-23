@@ -149,11 +149,35 @@ export function createRenderer(options) {
       }
     }
     // 新的没了
-    if (i > e2) {
+    else if (i > e2) {
       // 旧的还有
       if (i <= e1) {
         while (i <= e1) {
           hostRemove(c1[i++].el);
+        }
+      }
+    }
+    // 新旧都还有, 但是不一样
+    else {
+      // 遍历剩下的新节点 i ----> e2 建立映射
+      const keyToNewIndexMap = new Map();
+      for (let j = i; j <= e2; j++) {
+        keyToNewIndexMap.set(c2[j].key, j);
+      }
+      // 遍历剩下的老节点 i ----> e1 看看新的映射里有没有，如果有，代表还存在，需要保留，如果没有则直接删除
+      for (let j = i; j <= e1; j++) {
+        const n1 = c1[j];
+        if (keyToNewIndexMap.size === 0) {
+          hostRemove(n1.el);
+          continue;
+        }
+        const oldKey = n1.key;
+        const newIndex = keyToNewIndexMap.get(oldKey);
+        if (newIndex && isSameVNodeType(n1, c2[newIndex])) {
+          keyToNewIndexMap.delete(oldKey);
+          patch(n1, c2[newIndex], container, parentComponent, parentAnchor);
+        } else {
+          hostRemove(n1.el);
         }
       }
     }
