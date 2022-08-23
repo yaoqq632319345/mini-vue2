@@ -148,6 +148,15 @@ export function createRenderer(options) {
         }
       }
     }
+    // 新的没了
+    if (i > e2) {
+      // 旧的还有
+      if (i <= e1) {
+        while (i <= e1) {
+          hostRemove(c1[i++].el);
+        }
+      }
+    }
   }
   function unMountedChildren(c1: any) {
     c1.forEach((node) => {
