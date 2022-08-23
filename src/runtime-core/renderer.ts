@@ -159,6 +159,10 @@ export function createRenderer(options) {
     }
     // 新旧都还有, 但是不一样
     else {
+      let s1 = i, // c1 起点
+        s2 = i; // c2 起点
+      const toBePatched = e2 - s2 + 1; // 新数组剩下的个数
+      const newIndexToOldIndexMap = new Array(toBePatched).fill(-1);
       // 遍历剩下的新节点 i ----> e2 建立映射
       const keyToNewIndexMap = new Map();
       for (let j = i; j <= e2; j++) {
@@ -174,12 +178,22 @@ export function createRenderer(options) {
         const oldKey = n1.key;
         const newIndex = keyToNewIndexMap.get(oldKey);
         if (newIndex && isSameVNodeType(n1, c2[newIndex])) {
+          // 在映射里虽然找到了，但是位置不对，需要做一下映射
+          newIndexToOldIndexMap[newIndex - s2 /* 新坐标需要减去起点 */] =
+            j /* 在老节点的位置 */;
           keyToNewIndexMap.delete(oldKey);
           patch(n1, c2[newIndex], container, parentComponent, parentAnchor);
         } else {
           hostRemove(n1.el);
         }
       }
+      // 删除完了，只剩新增和移动
+      // 得到的数组中不是-1的，即为在旧节点中可以找到，可以复用
+      console.log(
+        '新旧对比数组，不为-1的，说明可以在旧节点中找到，可以复用，最长递增子序列，是说明新旧对比相对位置也不变，不需要移动，其他的需要移动或添加的找到自己的位置插入即可',
+        newIndexToOldIndexMap
+      );
+      const increasingNewIndexSequence = getSequence(newIndexToOldIndexMap);
     }
   }
   function unMountedChildren(c1: any) {
@@ -284,4 +298,38 @@ export function createRenderer(options) {
   return {
     createApp: createAppAPI(render),
   };
+}
+
+// 最长递增子序列
+function getSequence(nums) {
+  let len = nums.length;
+  let arr = [0];
+  let pre: any[] = [];
+  for (let i = 1; i < len; i++) {
+    const ln = arr.length;
+    if (nums[i] > nums[arr[ln - 1]]) {
+      pre[i] = arr[ln - 1];
+      arr.push(i);
+      continue;
+    }
+    let l = 0,
+      r = ln - 1;
+    while (l < r) {
+      const mid = (l + r) >> 1;
+      if (nums[arr[mid]] >= nums[i]) {
+        r = mid;
+      } else {
+        l = mid + 1;
+      }
+    }
+    pre[i] = arr[l - 1];
+    arr[l] = i;
+  }
+  let a = arr.length,
+    prev = arr[a - 1];
+  while (a--) {
+    arr[a] = prev;
+    prev = pre[prev];
+  }
+  return arr;
 }
