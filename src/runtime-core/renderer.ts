@@ -57,7 +57,6 @@ export function createRenderer(options) {
     }
   }
   function patchElement(n1, n2, container, parentComponent) {
-    console.log('element update');
     const oldProps = n1.props || EMPTY_OBJ;
     const newProps = n2.props || EMPTY_OBJ;
     const el = (n2.el = n1.el);
@@ -81,7 +80,39 @@ export function createRenderer(options) {
         hostSetElementText(container, '');
         mountChildren(c2, container, parentComponent);
       } /* 老节点也是array */ else {
-        console.log('array to array');
+        patchKeyedChildren(c1, c2, container, parentComponent);
+      }
+    }
+  }
+  function isSameVNodeType(n1, n2) {
+    return n1.type === n2.type && n1.key === n2.key;
+  }
+  function patchKeyedChildren(c1, c2, container, parentComponent) {
+    let i = 0,
+      l1 = c1.length,
+      e1 = l1 - 1,
+      l2 = c2.length,
+      e2 = l2 - 1;
+    // 左侧diff,  i++   node 取 c[i]
+    while (i <= e1 && i <= e2) {
+      const n1 = c1[i],
+        n2 = c2[i];
+      if (isSameVNodeType(n1, n2)) {
+        patch(n1, n2, container, parentComponent);
+      } else {
+        break;
+      }
+      i++;
+    }
+    // 旧的没了
+    if (i > e1) {
+      // 新的还有
+      if (i <= e2) {
+        // 需要创建
+        while (i <= e2) {
+          const n2 = c2[i++];
+          patch(null, n2, container, parentComponent);
+        }
       }
     }
   }

@@ -35,12 +35,12 @@ import { ref, h } from '../../lib/guide.mini-vue.esm.js';
 // (a b)
 // (a b) c
 // i = 2, e1 = 1, e2 = 2
-// const prevChildren = [h('p', { key: 'A' }, 'A'), h('p', { key: 'B' }, 'B')];
-// const nextChildren = [
-//   h('p', { key: 'A' }, 'A'),
-//   h('p', { key: 'B' }, 'B'),
-//   h('p', { key: 'C' }, 'C'),
-// ];
+const prevChildren = [h('p', { key: 'A' }, 'A'), h('p', { key: 'B' }, 'B')];
+const nextChildren = [
+  h('p', { key: 'A' }, 'A'),
+  h('p', { key: 'B' }, 'B'),
+  h('p', { key: 'C' }, 'C'),
+];
 
 // 右侧
 // (a b)

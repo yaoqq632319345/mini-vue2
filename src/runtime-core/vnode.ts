@@ -9,6 +9,7 @@ export const createVNode = (type, props?, children?) => {
     // type: string时，为tag， obj时，为组件配置对象
     type,
     props: props || {},
+    key: props && props.key,
     children,
     shapFlag: getShapFlag(type),
     el: null,
