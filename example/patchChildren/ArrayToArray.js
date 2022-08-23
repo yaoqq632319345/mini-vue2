@@ -112,8 +112,8 @@ const prevChildren = [
 const nextChildren = [
   h('p', { key: 'A' }, 'A'),
   h('p', { key: 'n' }, 'n'),
-  h('p', { key: 'B' }, 'B'),
   h('p', { key: 'C' }, 'C'),
+  h('p', { key: 'B' }, 'B'),
   h('p', { key: 'Z' }, 'Z'),
   h('p', { key: 'E' }, 'E'),
   h('p', { key: 'k' }, 'k'),

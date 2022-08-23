@@ -182,6 +182,7 @@ export function createRenderer(options) {
           newIndexToOldIndexMap[newIndex - s2 /* 新坐标需要减去起点 */] =
             j /* 在老节点的位置 */;
           keyToNewIndexMap.delete(oldKey);
+          // patch 完了之后， 赋予新旧vnode.el 属性为同一个dom元素
           patch(n1, c2[newIndex], container, parentComponent, parentAnchor);
         } else {
           hostRemove(n1.el);
@@ -194,6 +195,25 @@ export function createRenderer(options) {
         newIndexToOldIndexMap
       );
       const increasingNewIndexSequence = getSequence(newIndexToOldIndexMap);
+      // 遍历未处理的新节点, 需要使用insertBefore, 所以从右往左遍历
+      for (let j = toBePatched - 1; j >= 0; j--) {
+        // 实际坐标需要加上s2, 从s2 开始算的
+        const nextIndex = j + s2;
+        const nextChild = c2[nextIndex];
+
+        // insertBefore 参考元素 = nextIndex + 1 是不是最后一个 ? null : c2[nextIndex + 1].el
+        const anchor = nextIndex + 1 > l2 ? null : c2[nextIndex + 1].el;
+        if (newIndexToOldIndexMap[j] === -1) {
+          // 等于-1的，是新节点在老节点里不存在，需要新增
+          patch(null, nextChild, container, parentComponent, anchor);
+        } else if (increasingNewIndexSequence.includes(j)) {
+          // 新节点在老节点存在， 并且属于最长递增子序列， 什么也不干
+        } else {
+          // 不属于最长递增子序列，但老节点里有，只需要移动
+          // 这里nextChild.el 和 旧节点的el 是同一个，移动即可
+          hostInsert(nextChild.el, container, anchor);
+        }
+      }
     }
   }
   function unMountedChildren(c1: any) {
