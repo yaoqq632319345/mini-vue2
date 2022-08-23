@@ -3,6 +3,7 @@ const ProxyPropertiesMap = {
   $el: (instance) => instance.vnode.el,
   $emit: (instance) => instance.emit,
   $slots: (instance) => instance.slots,
+  $props: (instance) => instance.props,
 };
 export const PublicInstanceProxyHandlers = {
   get(target, key) {
