@@ -5,6 +5,7 @@ import { createAppAPI } from './createApp';
 import { Fragment, Text } from './vnode';
 import { EMPTY_OBJ } from '../shared/shared';
 import { shouldUpdateComponent } from './componentUpdateUtils';
+import { queueJob } from './scheduler';
 // 将render封装， 内部dom方法，全部由外部传入
 export function createRenderer(options) {
   const {
@@ -347,6 +348,11 @@ export function createRenderer(options) {
         console.log('更新100次');
         patch(preSubTree, subTree, container, instance, anchor);
         instance.vnode.el = subTree.el;
+      }
+    }, {
+      // effect的功能，配置了scheduler,当响应式数据发生变化时，会将更新函数放入异步队列中，等待执行
+      scheduler() {
+        queueJob(instance.update)
       }
     });
   }
