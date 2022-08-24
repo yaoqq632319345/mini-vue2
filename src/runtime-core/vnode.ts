@@ -11,6 +11,8 @@ export const createVNode = (type, props?, children?) => {
     props: props || {},
     key: props && props.key,
     children,
+    // 对应第3步
+    component: null,
     shapFlag: getShapFlag(type),
     el: null,
   };

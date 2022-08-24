@@ -4,6 +4,7 @@ import { createComponentInstance, setupComponent } from './component';
 import { createAppAPI } from './createApp';
 import { Fragment, Text } from './vnode';
 import { EMPTY_OBJ } from '../shared/shared';
+import { shouldUpdateComponent } from './componentUpdateUtils';
 // 将render封装， 内部dom方法，全部由外部传入
 export function createRenderer(options) {
   const {
@@ -244,7 +245,28 @@ export function createRenderer(options) {
     parentComponent,
     anchor
   ) {
-    mountComponent(n2, container, parentComponent, anchor);
+    if (n1) {
+      // 如果n1 有值， 更新流程
+      updateComponent(n1, n2, container, parentComponent, anchor);
+    } else {
+      mountComponent(n2, container, parentComponent, anchor);
+    }
+  }
+
+  function updateComponent(
+    n1: any,
+    n2: any,
+    container: any,
+    parentComponent: any,
+    anchor: any
+  ) {
+    // 1.这里更新组件需要得到effect 返回的runner
+    // 3.想办法拿到组件实例，可以在创建组件实例时，保存在vnode 上
+    // n1 经历过createComponentInstance 所以有，n2 是新的，需要赋值
+    const instance = (n2.component = n1.component);
+    if (shouldUpdateComponent(n1, n2)) {
+      instance.update();
+    }
   }
   // 元素挂载流程: 创建dom -> 初始化props、事件，-> 递归子元素
   function mountElement(vnode: any, container: any, parentComponent, anchor) {
@@ -275,7 +297,11 @@ export function createRenderer(options) {
   // 组件挂载 流程 创建组件实例 -> 调用setup (初始化 props ,slots, 并设置render 方法) -> 处理子元素 (调用组件render方法得到vnode, patch vnode得到真实dom, 并赋值给instance.vnode.el)
   function mountComponent(vnode: any, container: any, parentComponent, anchor) {
     // 创建组件实例
-    const instance = createComponentInstance(vnode, parentComponent);
+
+    const instance = /* 第3步 */ (vnode.component = createComponentInstance(
+      vnode,
+      parentComponent
+    ));
     // 设置组件setup
     setupComponent(instance);
 
@@ -287,7 +313,8 @@ export function createRenderer(options) {
   function setupRenderEffect(instance: any, container: any, anchor) {
     // 在处理子元素之前需要注册 effect 副作用函数， 将activeEffect 置成当前组件的更新函数，在处理子元素时，触发响应式对象的get时，会将 activeEffect 与响应式对象 通过targetMaps 形成联系，当响应式变量发生变化时，可以通过targetMap 拿到组件更新函数，从而执行更新
     // 现在要做的就是写好更新函数就可以了
-    effect(() => {
+    // 2. 这里把runner 保存在组件实例上
+    instance.update = effect(() => {
       if (!instance.isMounted) {
         // 首次挂载
         // 这里保存一下子树, 保存到instance.subTree上，下次更新时需要取出，做diff
