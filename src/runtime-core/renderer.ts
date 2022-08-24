@@ -265,6 +265,8 @@ export function createRenderer(options) {
     // n1 经历过createComponentInstance 所以有，n2 是新的，需要赋值
     const instance = (n2.component = n1.component);
     if (shouldUpdateComponent(n1, n2)) {
+      // 更新时需要n2,需要考虑如何代入, 这里把新的vnode放入实例中
+      instance.n2 = n2;
       instance.update();
     } else {
       // 不需要更新则将n1的el 赋给n2, 将组件的vnode 更新成n2, n1就没了
@@ -331,6 +333,11 @@ export function createRenderer(options) {
         instance.vnode.el = subTree.el;
         instance.isMounted = true;
       } else {
+        const { n2 } = instance;
+        if (n2) {
+          // 如果新的vnode有值 , 更新组件 props， 更新完之后才能重新调用render
+          updateComponentPreRender(instance, n2);
+        }
         // 更新流程
         const preSubTree = instance.subTree; // 获取更新前的vnode
         // 重新调用render 获取新的vnode
@@ -341,6 +348,15 @@ export function createRenderer(options) {
         instance.vnode.el = subTree.el;
       }
     });
+  }
+
+  function updateComponentPreRender(instance: any, n2: any) {
+    // 更新组件vnode n1 -> n2
+    instance.vnode = n2;
+    // n2 置空
+    instance.n2 = null;
+    // 更新组件实例props,视图使用
+    instance.props = n2.props;
   }
 
   // 所以这里需要返回一个带有createApp 方法的对象
