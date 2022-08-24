@@ -266,6 +266,10 @@ export function createRenderer(options) {
     const instance = (n2.component = n1.component);
     if (shouldUpdateComponent(n1, n2)) {
       instance.update();
+    } else {
+      // 不需要更新则将n1的el 赋给n2, 将组件的vnode 更新成n2, n1就没了
+      n2.el = n1.el;
+      instance.vnode = n2;
     }
   }
   // 元素挂载流程: 创建dom -> 初始化props、事件，-> 递归子元素
