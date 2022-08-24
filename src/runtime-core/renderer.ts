@@ -321,40 +321,43 @@ export function createRenderer(options) {
     // 在处理子元素之前需要注册 effect 副作用函数， 将activeEffect 置成当前组件的更新函数，在处理子元素时，触发响应式对象的get时，会将 activeEffect 与响应式对象 通过targetMaps 形成联系，当响应式变量发生变化时，可以通过targetMap 拿到组件更新函数，从而执行更新
     // 现在要做的就是写好更新函数就可以了
     // 2. 这里把runner 保存在组件实例上
-    instance.update = effect(() => {
-      if (!instance.isMounted) {
-        // 首次挂载
-        // 这里保存一下子树, 保存到instance.subTree上，下次更新时需要取出，做diff
-        const subTree = (instance.subTree = instance.render.call(
-          instance.proxy
-        ));
-        // 首次挂载 n1 为null
-        patch(null, subTree, container, instance, anchor);
-        // subTree 子元素 这时的用例是一个element, 所以有el 属性， 赋值给组件实例
-        instance.vnode.el = subTree.el;
-        instance.isMounted = true;
-      } else {
-        const { n2 } = instance;
-        if (n2) {
-          // 如果新的vnode有值 , 更新组件 props， 更新完之后才能重新调用render
-          updateComponentPreRender(instance, n2);
+    instance.update = effect(
+      () => {
+        if (!instance.isMounted) {
+          // 首次挂载
+          // 这里保存一下子树, 保存到instance.subTree上，下次更新时需要取出，做diff
+          const subTree = (instance.subTree = instance.render.call(
+            instance.proxy
+          ));
+          // 首次挂载 n1 为null
+          patch(null, subTree, container, instance, anchor);
+          // subTree 子元素 这时的用例是一个element, 所以有el 属性， 赋值给组件实例
+          instance.vnode.el = subTree.el;
+          instance.isMounted = true;
+        } else {
+          const { n2 } = instance;
+          if (n2) {
+            // 如果新的vnode有值 , 更新组件 props， 更新完之后才能重新调用render
+            updateComponentPreRender(instance, n2);
+          }
+          // 更新流程
+          const preSubTree = instance.subTree; // 获取更新前的vnode
+          // 重新调用render 获取新的vnode
+          const subTree = (instance.subTree = instance.render.call(
+            instance.proxy
+          ));
+          console.log('更新100次');
+          patch(preSubTree, subTree, container, instance, anchor);
+          instance.vnode.el = subTree.el;
         }
-        // 更新流程
-        const preSubTree = instance.subTree; // 获取更新前的vnode
-        // 重新调用render 获取新的vnode
-        const subTree = (instance.subTree = instance.render.call(
-          instance.proxy
-        ));
-        console.log('更新100次');
-        patch(preSubTree, subTree, container, instance, anchor);
-        instance.vnode.el = subTree.el;
+      },
+      {
+        // effect的功能，配置了scheduler,当响应式数据发生变化时，会将更新函数放入异步队列中，等待执行
+        scheduler() {
+          queueJob(instance.update);
+        },
       }
-    }, {
-      // effect的功能，配置了scheduler,当响应式数据发生变化时，会将更新函数放入异步队列中，等待执行
-      scheduler() {
-        queueJob(instance.update)
-      }
-    });
+    );
   }
 
   function updateComponentPreRender(instance: any, n2: any) {

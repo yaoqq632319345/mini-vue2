@@ -15,7 +15,7 @@ export const App = {
         nextTick(() => {
           // 会放入异步队列中100次
           console.log(_this.vnode.el.innerHTML);
-        })
+        });
       }
     };
     return { changeCount, count };
