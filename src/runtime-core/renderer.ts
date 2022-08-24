@@ -344,6 +344,7 @@ export function createRenderer(options) {
         const subTree = (instance.subTree = instance.render.call(
           instance.proxy
         ));
+        console.log('更新100次');
         patch(preSubTree, subTree, container, instance, anchor);
         instance.vnode.el = subTree.el;
       }
