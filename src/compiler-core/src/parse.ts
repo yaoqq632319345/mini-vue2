@@ -75,9 +75,21 @@ function parseElement(context: ctx) {
   element.children = parseChildren(context);
   // console.log(element.children);
 
-  // 处理结束
-  parseTag(context, TagType.End);
+  // 如果</xxx> 与 element.tag 是同一标签，则继续处理，否则抛出异常
+  if (startsWithEndTagOpen(context.source, element.tag)) {
+    // 处理结束
+    parseTag(context, TagType.End);
+  } else {
+    throw new Error(`缺少结束标签:${element.tag}`);
+  }
   return element;
+}
+
+function startsWithEndTagOpen(source: string, tag: string) {
+  return (
+    source.startsWith('</') &&
+    source.slice(2, 2 + tag.length).toLowerCase() === tag.toLowerCase()
+  );
 }
 
 function parseTag(context: ctx, type: TagType) {

@@ -82,5 +82,10 @@ describe('Parse', () => {
         ],
       });
     });
+    test('should throw error when lack end tag', () => {
+      expect(() => {
+        baseParse('<div><span></div>');
+      }).toThrow(`缺少结束标签:span`);
+    });
   });
 });
