@@ -35,7 +35,16 @@ function parseChildren(context: ctx) {
 }
 
 function parseText(context: ctx) {
-  const content = parseTextData(context, context.source.length);
+  // 2. 递归处理子节点时，需要判断结束
+  let endIndex = context.source.length;
+  const endTokens = ['<', '{{'];
+  for (let i = 0; i < endTokens.length; i++) {
+    const index = context.source.indexOf(endTokens[i]);
+    if (index > -1 && endIndex > index) {
+      endIndex = index;
+    }
+  }
+  const content = parseTextData(context, endIndex);
   return {
     type: NodeTypes.TEXT,
     content,
@@ -52,7 +61,11 @@ function parseTextData(context: ctx, length: number) {
 
 function parseElement(context: ctx) {
   // 处理开始
-  const element = parseTag(context, TagType.Start);
+  const element: any = parseTag(context, TagType.Start);
+  // 1. 开始标签处理完毕 递归处理子节点
+  element.children = parseChildren(context);
+  console.log(element.children);
+
   // 处理结束
   parseTag(context, TagType.End);
   return element;

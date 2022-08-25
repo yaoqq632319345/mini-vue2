@@ -32,4 +32,20 @@ describe('Parse', () => {
       });
     });
   });
+  describe('联合类型', () => {
+    test.only('hello world', () => {
+      const ast = baseParse('<div>hi</div>');
+
+      expect(ast.children[0]).toStrictEqual({
+        type: NodeTypes.ELEMENT,
+        tag: 'div',
+        children: [
+          {
+            type: NodeTypes.TEXT,
+            content: 'hi',
+          },
+        ],
+      });
+    });
+  });
 });
