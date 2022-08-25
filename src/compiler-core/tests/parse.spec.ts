@@ -34,7 +34,7 @@ describe('Parse', () => {
   });
   describe('联合类型', () => {
     test.only('hello world', () => {
-      const ast = baseParse('<div>hi</div>');
+      const ast = baseParse('<div>hi,{{message}}</div>');
 
       expect(ast.children[0]).toStrictEqual({
         type: NodeTypes.ELEMENT,
@@ -42,7 +42,14 @@ describe('Parse', () => {
         children: [
           {
             type: NodeTypes.TEXT,
-            content: 'hi',
+            content: 'hi,',
+          },
+          {
+            type: NodeTypes.INTERPOLATION,
+            content: {
+              type: NodeTypes.SIMPLE_EXPRESSION,
+              content: 'message',
+            },
           },
         ],
       });

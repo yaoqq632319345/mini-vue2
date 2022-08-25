@@ -17,6 +17,8 @@ export const baseParse = (content: string) => {
 // 4
 function parseChildren(context: ctx) {
   const nodes: any[] = [];
+  // while (context.source) { // 这里不能直接这么写，因为处理子节点时，还有闭合标签</div>
+  while (!isEnd(context)) {
   let node;
   const s = context.source;
   if (s.startsWith('{{')) {
@@ -31,7 +33,14 @@ function parseChildren(context: ctx) {
     node = parseText(context);
   }
   nodes.push(node);
+  }
   return nodes;
+}
+
+function isEnd(context: ctx) {
+  const s = context.source;
+  if (s.startsWith('</') || !s) return true 
+  return false
 }
 
 function parseText(context: ctx) {
