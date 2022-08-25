@@ -26,8 +26,28 @@ function parseChildren(context: ctx) {
       node = parseElement(context);
     }
   }
+
+  if (!node) {
+    node = parseText(context);
+  }
   nodes.push(node);
   return nodes;
+}
+
+function parseText(context: ctx) {
+  const content = parseTextData(context, context.source.length);
+  return {
+    type: NodeTypes.TEXT,
+    content,
+  };
+}
+
+function parseTextData(context: ctx, length: number) {
+  const content = context.source.slice(0, length);
+  // console.log(context.source); // some text
+  advanceBy(context, length);
+  // console.log(context.source); //  ''
+  return content;
 }
 
 function parseElement(context: ctx) {
@@ -72,11 +92,12 @@ function parseInterpolation(context: ctx) {
   // console.log(context.source);//  message }}
 
   const rawContentLength = closeIndex - openDelimiter.length;
-  const rawContent = context.source.slice(0, rawContentLength);
+  // 这里优化一下，处理完之后 context.source = }}
+  const rawContent = parseTextData(context, rawContentLength);
   const content = rawContent.trim();
 
-  // console.log(context.source); //  message }}
-  advanceBy(context, rawContentLength + closeDelimiter.length);
+  // console.log(context.source); // }}
+  advanceBy(context, closeDelimiter.length);
   // console.log(context.source); //  ''
 
   return {
