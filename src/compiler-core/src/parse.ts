@@ -23,11 +23,30 @@ function parseChildren(context: ctx) {
 
 // 5 处理 {{ message }}
 function parseInterpolation(context: ctx) {
+  const openDelimiter = '{{';
+  const closeDelimiter = '}}';
+  const closeIndex = context.source.indexOf(
+    closeDelimiter,
+    openDelimiter.length
+  );
+
+  // console.log(context.source);// {{ message }}
+  advanceBy(context, openDelimiter.length);
+  // console.log(context.source);//  message }}
+
+  const rawContentLength = closeIndex - openDelimiter.length;
+  const rawContent = context.source.slice(0, rawContentLength);
+  const content = rawContent.trim();
+
+  // console.log(context.source); //  message }}
+  advanceBy(context, rawContentLength + closeDelimiter.length);
+  // console.log(context.source); //  ''
+
   return {
     type: NodeTypes.INTERPOLATION,
     content: {
       type: NodeTypes.SIMPLE_EXPRESSION,
-      content: 'message',
+      content,
     },
   };
 }
