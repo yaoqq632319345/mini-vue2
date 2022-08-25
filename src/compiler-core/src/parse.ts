@@ -11,21 +11,21 @@ const enum TagType {
 export const baseParse = (content: string) => {
   const context = createParseContext(content);
 
-  return createRoot(parseChildren(context));
+  return createRoot(parseChildren(context, []));
 };
 
 // 4
-function parseChildren(context: ctx) {
+function parseChildren(context: ctx, ancestors) {
   const nodes: any[] = [];
   // while (context.source) { // 这里不能直接这么写，因为处理子节点时，还有闭合标签</div>
-  while (!isEnd(context)) {
+  while (!isEnd(context, ancestors)) {
     let node;
     const s = context.source;
     if (s.startsWith('{{')) {
       node = parseInterpolation(context);
     } else if (s[0] === '<') {
       if (/[a-z]/i.test(s[1])) {
-        node = parseElement(context);
+        node = parseElement(context, ancestors);
       }
     }
 
@@ -37,10 +37,18 @@ function parseChildren(context: ctx) {
   return nodes;
 }
 
-function isEnd(context: ctx) {
+function isEnd(context: ctx, ancestors) {
   const s = context.source;
-  if (s.startsWith('</') || !s) return true;
-  return false;
+  if (s.startsWith('</')) {
+    // 加这段更严谨的判断, 原先是遇到 </ 就结束，现在还要去栈里看看有没有开始标签
+    for (let i = ancestors.length - 1; i >= 0; i--) {
+      const tag = ancestors[i].tag;
+      if (startsWithEndTagOpen(s, tag)) {
+        return true;
+      }
+    }
+  }
+  return !s;
 }
 
 function parseText(context: ctx) {
@@ -68,11 +76,13 @@ function parseTextData(context: ctx, length: number) {
   return content;
 }
 
-function parseElement(context: ctx) {
+function parseElement(context: ctx, ancestors) {
   // 处理开始
   const element: any = parseTag(context, TagType.Start);
+  ancestors.push(element);
   // 1. 开始标签处理完毕 递归处理子节点
-  element.children = parseChildren(context);
+  element.children = parseChildren(context, ancestors);
+  ancestors.pop();
   // console.log(element.children);
 
   // 如果</xxx> 与 element.tag 是同一标签，则继续处理，否则抛出异常
