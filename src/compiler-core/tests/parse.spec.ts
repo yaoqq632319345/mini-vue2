@@ -20,6 +20,7 @@ describe('Parse', () => {
       expect(ast.children[0]).toStrictEqual({
         type: NodeTypes.ELEMENT,
         tag: 'div',
+        children: [],
       });
     });
   });
@@ -33,7 +34,7 @@ describe('Parse', () => {
     });
   });
   describe('联合类型', () => {
-    test.only('hello world', () => {
+    test('hello world', () => {
       const ast = baseParse('<div>hi,{{message}}</div>');
 
       expect(ast.children[0]).toStrictEqual({

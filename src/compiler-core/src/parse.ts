@@ -19,28 +19,28 @@ function parseChildren(context: ctx) {
   const nodes: any[] = [];
   // while (context.source) { // 这里不能直接这么写，因为处理子节点时，还有闭合标签</div>
   while (!isEnd(context)) {
-  let node;
-  const s = context.source;
-  if (s.startsWith('{{')) {
-    node = parseInterpolation(context);
-  } else if (s[0] === '<') {
-    if (/[a-z]/i.test(s[1])) {
-      node = parseElement(context);
+    let node;
+    const s = context.source;
+    if (s.startsWith('{{')) {
+      node = parseInterpolation(context);
+    } else if (s[0] === '<') {
+      if (/[a-z]/i.test(s[1])) {
+        node = parseElement(context);
+      }
     }
-  }
 
-  if (!node) {
-    node = parseText(context);
-  }
-  nodes.push(node);
+    if (!node) {
+      node = parseText(context);
+    }
+    nodes.push(node);
   }
   return nodes;
 }
 
 function isEnd(context: ctx) {
   const s = context.source;
-  if (s.startsWith('</') || !s) return true 
-  return false
+  if (s.startsWith('</') || !s) return true;
+  return false;
 }
 
 function parseText(context: ctx) {
@@ -73,7 +73,7 @@ function parseElement(context: ctx) {
   const element: any = parseTag(context, TagType.Start);
   // 1. 开始标签处理完毕 递归处理子节点
   element.children = parseChildren(context);
-  console.log(element.children);
+  // console.log(element.children);
 
   // 处理结束
   parseTag(context, TagType.End);
