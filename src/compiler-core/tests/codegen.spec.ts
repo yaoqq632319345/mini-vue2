@@ -2,6 +2,8 @@ import { transform } from '../src/transform';
 import { baseParse } from '../src/parse';
 import { generate } from '../src/codegen';
 import { transformExpression } from '../src/transforms/transformExpression';
+import { transformElement } from '../src/transforms/transformElement';
+import { transformText } from '../src/transforms/transformText';
 // npm run test codegen -- -u
 // codegen: 测试文件名
 // -- 跳过npm 参数
@@ -23,7 +25,9 @@ describe('codegen', () => {
   });
   it('<div>hi,{{message}}</div>', () => {
     const ast = baseParse('<div>hi,{{message}}</div>');
-    transform(ast, {});
+    transform(ast, {
+      nodeTransforms: [transformExpression, transformElement, transformText],
+    });
     const { code } = generate(ast);
     expect(code).toMatchSnapshot();
   });

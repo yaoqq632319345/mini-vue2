@@ -10,7 +10,12 @@ export function transform(root, options = {}) {
 }
 
 function createRootCodegen(root: any) {
-  root.codegenNode = root.children[0];
+  const child = root.children[0];
+  if (child.type === NodeTypes.ELEMENT) {
+    root.codegenNode = child.codegenNode;
+  } else {
+    root.codegenNode = root.children[0];
+  }
 }
 
 function createTransformContext(root: any, options: any): any {
@@ -26,21 +31,27 @@ function createTransformContext(root: any, options: any): any {
   return context;
 }
 function traverseNode(node: any, context) {
+  const exitFns: any = [];
   context.nodeTransforms.forEach((nodeTransform) => {
-    nodeTransform(node);
+    const onExit = nodeTransform(node, context);
+    // 将插件返回值作为退出执行函数
+    if (onExit) exitFns.push(onExit);
   });
   switch (node.type) {
     case NodeTypes.INTERPOLATION:
       context.helper(TO_DISPLAY_STRING);
       break;
     case NodeTypes.ELEMENT:
-      context.helper(CREATE_ELEMENT_VNODE);
-      traverseChildren(node, context);
     case NodeTypes.ROOT:
       traverseChildren(node, context);
       break;
     default:
       break;
+  }
+  // 先放入的后执行，倒着来
+  let i = exitFns.length;
+  while (i--) {
+    exitFns[i]();
   }
 }
 function traverseChildren(node: any, context: any) {
