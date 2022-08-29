@@ -71,9 +71,19 @@ function handleSetupResult(instance: any, setupResult: any) {
 function finishComponentSetup(instance: any) {
   // 取出 App 组件的 render
   const {
-    type: { render },
+    type: { render, template },
   } = instance;
   if (render) {
     instance.render = render;
+  } else {
+    // 1. 先给render函数整出来
+    if (compiler && template) {
+      instance.render = compiler(template);
+    }
   }
+}
+
+let compiler;
+export function registerRuntimeCompiler(_compiler) {
+  compiler = _compiler;
 }
