@@ -1,4 +1,9 @@
-import { helperMapName, TO_DISPLAY_STRING } from './runtimeHelpers';
+import { isString } from './../../shared/shared';
+import {
+  CREATE_ELEMENT_VNODE,
+  helperMapName,
+  TO_DISPLAY_STRING,
+} from './runtimeHelpers';
 import { NodeTypes } from './ast';
 
 export const generate = (ast) => {
@@ -60,8 +65,36 @@ function genNode(node: any, context) {
     case NodeTypes.SIMPLE_EXPRESSION:
       genExpression(node, context);
       break;
+    case NodeTypes.ELEMENT:
+      genElement(node, context);
+      break;
     default:
       break;
+  }
+}
+
+function genElement(node: any, context: any) {
+  const { push, helper } = context;
+  const { tag, children, props } = node;
+  push(`${helper(CREATE_ELEMENT_VNODE)}(`);
+  // 处理子元素
+  push(`'${tag}', `);
+  push(`${props || null}, `);
+  genNodeList(children, context);
+  push(')');
+}
+
+function genNodeList(nodeList: any, context: any) {
+  const { push } = context;
+  if (Array.isArray(nodeList)) {
+    nodeList.forEach((node, i) => {
+      if (i !== 0) {
+        push(' + ');
+      }
+      genNode(node, context);
+    });
+  } else {
+    genNode(nodeList, context);
   }
 }
 

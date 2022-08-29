@@ -21,4 +21,10 @@ describe('codegen', () => {
     const { code } = generate(ast);
     expect(code).toMatchSnapshot();
   });
+  it('<div>hi,{{message}}</div>', () => {
+    const ast = baseParse('<div>hi,{{message}}</div>');
+    transform(ast, {});
+    const { code } = generate(ast);
+    expect(code).toMatchSnapshot();
+  });
 });
