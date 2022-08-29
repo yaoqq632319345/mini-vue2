@@ -105,7 +105,18 @@ function genNodeList(nodes, context) {
     if (isString(node)) {
       push(node);
     } else {
-      genNode(node, context);
+      if (node.length > 1) {
+        push('[');
+      }
+      node.forEach((item, j) => {
+        if (j !== 0) {
+          push(', ');
+        }
+        genNode(item, context);
+      });
+      if (node.length > 1) {
+        push(']');
+      }
     }
 
     if (i < nodes.length - 1) {

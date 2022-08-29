@@ -31,4 +31,12 @@ describe('codegen', () => {
     const { code } = generate(ast);
     expect(code).toMatchSnapshot();
   });
+  it('<div><p>hi,</p>{{message}}</div>', () => {
+    const ast = baseParse('<div><p>hi,</p>{{message}}</div>');
+    transform(ast, {
+      nodeTransforms: [transformExpression, transformElement, transformText],
+    });
+    const { code } = generate(ast);
+    expect(code).toMatchSnapshot();
+  });
 });

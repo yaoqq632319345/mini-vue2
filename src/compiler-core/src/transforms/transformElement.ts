@@ -11,7 +11,7 @@ export function transformElement(node, context) {
 
       // children
       const children = node.children;
-      let vnodeChildren = children[0];
+      let vnodeChildren = children;
 
       node.codegenNode = createVNodeCall(
         context,
