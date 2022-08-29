@@ -327,6 +327,10 @@ export function createRenderer(options) {
           // 首次挂载
           // 这里保存一下子树, 保存到instance.subTree上，下次更新时需要取出，做diff
           const subTree = (instance.subTree = instance.render.call(
+            // 1. 解决_ctx.xxx 报错
+            // 第一个proxy是给render绑定this,
+            instance.proxy,
+            // 第二个proxy是给render传入的_ctx
             instance.proxy
           ));
           // 首次挂载 n1 为null
@@ -344,9 +348,9 @@ export function createRenderer(options) {
           const preSubTree = instance.subTree; // 获取更新前的vnode
           // 重新调用render 获取新的vnode
           const subTree = (instance.subTree = instance.render.call(
+            instance.proxy,
             instance.proxy
           ));
-          console.log('更新100次');
           patch(preSubTree, subTree, container, instance, anchor);
           instance.vnode.el = subTree.el;
         }

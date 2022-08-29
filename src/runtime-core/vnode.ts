@@ -3,6 +3,10 @@ import { ShapeFlags } from '../shared/ShapeFlags';
 // vnode 的type 增加了 Fragment 和 Text 两个类型
 export const Fragment = Symbol('Fragment');
 export const Text = Symbol('Text');
+
+// 2. 解决调用render函数调用 createElementVNode 方法不存在
+export { createVNode as createElementVNode };
+
 // props 默认值
 export const createVNode = (type, props?, children?) => {
   const vnode = {
