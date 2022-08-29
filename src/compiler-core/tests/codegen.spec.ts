@@ -12,4 +12,10 @@ describe('codegen', () => {
     const { code } = generate(ast);
     expect(code).toMatchSnapshot();
   });
+  it('{{message}}', () => {
+    const ast = baseParse('{{message}}');
+    transform(ast);
+    const { code } = generate(ast);
+    expect(code).toMatchSnapshot();
+  });
 });

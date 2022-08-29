@@ -157,6 +157,7 @@ function parseInterpolation(context: ctx) {
 function createRoot(children: any[]) {
   return {
     children,
+    type: NodeTypes.ROOT,
   };
 }
 
