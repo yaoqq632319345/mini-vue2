@@ -1,3 +1,4 @@
+import { helperMapName, TO_DISPLAY_STRING } from './runtimeHelpers';
 import { NodeTypes } from './ast';
 
 export const generate = (ast) => {
@@ -26,9 +27,9 @@ export const generate = (ast) => {
 
 // 1--- 接下来对ast进行处理，添加helpers
 function genFunctionPreamble(ast: any, context) {
-  const { push } = context;
+  const { push, helper } = context;
   const VueBinging = 'Vue';
-  const aliasHelper = (s) => `${s}: _${s}`;
+  const aliasHelper = (s) => `${helperMapName[s]}: ${helper(s)}`;
   push(`
     const { ${ast.helpers.map(aliasHelper).join(', ')} } = ${VueBinging}
   `);
@@ -40,6 +41,9 @@ function createCodegenContext() {
     code: '',
     push(source) {
       context.code += source;
+    },
+    helper(key) {
+      return `_${helperMapName[key]}`;
     },
   };
 
@@ -67,8 +71,8 @@ function genExpression(node: any, context: any) {
 }
 
 function genInterpolation(node: any, context: any) {
-  const { push } = context;
-  push(`_toDisplayString(`);
+  const { push, helper } = context;
+  push(`${helper(TO_DISPLAY_STRING)}(`);
   genNode(node.content, context);
   push(`)`);
 }
