@@ -1,3 +1,5 @@
+import { NodeTypes } from './ast';
+
 export const generate = (ast) => {
   const context = createCodegenContext();
   const { push } = context;
@@ -44,6 +46,34 @@ function createCodegenContext() {
   return context;
 }
 function genNode(node: any, context) {
+  switch (node.type) {
+    case NodeTypes.TEXT:
+      genText(node, context);
+      break;
+    case NodeTypes.INTERPOLATION:
+      genInterpolation(node, context);
+      break;
+    case NodeTypes.SIMPLE_EXPRESSION:
+      genExpression(node, context);
+      break;
+    default:
+      break;
+  }
+}
+
+function genExpression(node: any, context: any) {
+  const { push } = context;
+  push(`'${node.content}'`);
+}
+
+function genInterpolation(node: any, context: any) {
+  const { push } = context;
+  push(`_toDisplayString(`);
+  genNode(node.content, context);
+  push(`)`);
+}
+
+function genText(node: any, context: any) {
   const { push } = context;
   push(`'${node.content}'`);
 }
