@@ -1,6 +1,7 @@
 import { transform } from '../src/transform';
 import { baseParse } from '../src/parse';
 import { generate } from '../src/codegen';
+import { transformExpression } from '../src/transforms/transformExpression';
 // npm run test codegen -- -u
 // codegen: 测试文件名
 // -- 跳过npm 参数
@@ -14,7 +15,9 @@ describe('codegen', () => {
   });
   it('{{message}}', () => {
     const ast = baseParse('{{message}}');
-    transform(ast);
+    transform(ast, {
+      nodeTransforms: [transformExpression],
+    });
     const { code } = generate(ast);
     expect(code).toMatchSnapshot();
   });

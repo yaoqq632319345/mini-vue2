@@ -7,7 +7,9 @@ export const generate = (ast) => {
 
   // 1.
   // const { toDisplayString:_toDisplayString } = Vue
-  genFunctionPreamble(ast, context);
+  if (ast.helpers.length) {
+    genFunctionPreamble(ast, context);
+  }
 
   push('return ');
 
@@ -30,9 +32,7 @@ function genFunctionPreamble(ast: any, context) {
   const { push, helper } = context;
   const VueBinging = 'Vue';
   const aliasHelper = (s) => `${helperMapName[s]}: ${helper(s)}`;
-  push(`
-    const { ${ast.helpers.map(aliasHelper).join(', ')} } = ${VueBinging}
-  `);
+  push(`const { ${ast.helpers.map(aliasHelper).join(', ')} } = ${VueBinging}`);
   push('\n');
 }
 
@@ -67,7 +67,7 @@ function genNode(node: any, context) {
 
 function genExpression(node: any, context: any) {
   const { push } = context;
-  push(`'${node.content}'`);
+  push(`${node.content}`);
 }
 
 function genInterpolation(node: any, context: any) {
