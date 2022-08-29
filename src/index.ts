@@ -7,17 +7,17 @@ import * as runtimeDom from './runtime-dom';
 import { registerRuntimeCompiler } from './runtime-dom';
 function compileToFunction(template) {
   const { code } = baseCompiler(template);
-  const renderFn = new Function('Vue', code)(
-    /********** 
-    function (Vue) {
-      const { toDisplayString: _toDisplayString,  createElement: _createElement } = Vue
-      return function render(_ctx, _cache) {
-        return  _createElement("div", null, "hi," + _toDisplayString(_ctx.count))
-      }
+  const codeFn = new Function('Vue', code);
+  // console.log(codeFn);
+  /********** 
+  function anonymous(Vue) {
+    const { toDisplayString: _toDisplayString, createElementVNode: _createElementVNode } = Vue
+    return function render(_ctx, _cache){
+      return _createElementVNode('div', null, 'hi,' + _toDisplayString(_ctx.count));
     }
-    **********/
-    runtimeDom
-  );
+  }
+  **********/
+  const renderFn = codeFn(runtimeDom);
   return renderFn;
 }
 
