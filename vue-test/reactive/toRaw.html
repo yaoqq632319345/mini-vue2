@@ -1,0 +1,30 @@
+<!-- toRaw 返回原始对象，修改会改变reactive 对象的值，但并不会更新视图  -->
+<div id="app">
+  {{react.a}}
+  <button @click="changeRaw">点击</button>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<script>
+  const { toRaw, createApp, reactive, toRefs, isRef } = Vue;
+
+  const App = {
+    setup() {
+      const react = reactive({
+        a: 1,
+        b: 2,
+      });
+
+      const raw = toRaw(react);
+      return {
+        react,
+        changeRaw() {
+          raw.a = 100;
+          console.log(react.a);
+        },
+      };
+    },
+  };
+  createApp(App).mount('#app');
+</script>
