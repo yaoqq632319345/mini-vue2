@@ -1,0 +1,30 @@
+<!-- toRefs 只解第一层数据  -->
+<div id="app">
+  {{ a + b }}
+  <p>{{c.d}}</p>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<script>
+  const { createApp, reactive, toRefs, isRef } = Vue;
+
+  const App = {
+    setup() {
+      const react = reactive({
+        a: 1,
+        b: 2,
+        c: {
+          d: 4,
+        },
+      });
+
+      const { c } = toRefs(react);
+      console.log(isRef(c));
+      return {
+        ...toRefs(react),
+      };
+    },
+  };
+  createApp(App).mount('#app');
+</script>
