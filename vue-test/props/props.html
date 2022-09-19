@@ -1,0 +1,41 @@
+<!-- props 是shallowReactive, 意味着引用类型子组件可以修改内部属性, 但不推荐 -->
+<div id="app"></div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<script>
+  const { h, ref, createApp, reactive, toRefs, isRef } = Vue;
+  const Child = {
+    props: ['msg'],
+    render(instance /* :ComponentPublicInstance */) {
+      return h('div', [
+        h('p', instance.msg.join(' ')),
+        h(
+          'button',
+          {
+            onClick: instance.changeMsg,
+          },
+          '子组件修改props'
+        ),
+      ]);
+    },
+    setup(props) {
+      return {
+        changeMsg() {
+          props.msg.push(4);
+        },
+      };
+    },
+  };
+  const App = {
+    setup() {
+      const msg = reactive([1, 2, 3]);
+      return { msg };
+    },
+    render() {
+      const child = h(Child, { msg: this.msg });
+      return h('div', {}, [...this.msg.map((item) => h('p', item)), child]);
+    },
+  };
+  createApp(App).mount('#app');
+</script>
