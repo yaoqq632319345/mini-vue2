@@ -6,7 +6,7 @@
 <script>
   const { h, ref, createApp, reactive, toRefs, isRef } = Vue;
   const Child = {
-    props: ['msg'],
+    props: ['msg'], // 这里不定义props 则传入的任何props 都会被当做attrs
     render(instance /* :ComponentPublicInstance */) {
       return h('div', [
         h('p', instance.msg.join(' ')),
