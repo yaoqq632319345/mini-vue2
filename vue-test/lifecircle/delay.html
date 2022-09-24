@@ -1,0 +1,25 @@
+<!-- 生命周期过了时机再注册就不好使了  -->
+<div id="app"></div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<script>
+  const { toRaw, createApp, reactive, toRefs, isRef, onMounted } = Vue;
+
+  const App = {
+    setup() {
+      setTimeout(() => {
+        onMounted(() => {
+          console.log(2); // 不会打印
+        });
+      }, 3000);
+      onMounted(() => {
+        console.log(1);
+        onMounted(() => {
+          console.log(3); // 不会打印
+        });
+      });
+    },
+  };
+  createApp(App).mount('#app');
+</script>
