@@ -1,0 +1,27 @@
+<!-- ref 套 ref  -->
+<div id="app">
+  {{cntRef}}
+  <button @click="onClick">click</button>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<script>
+  const { getCurrentInstance, ref, createApp } = Vue;
+
+  const App = {
+    setup() {
+      const cnt = ref(0);
+      const cntRef = ref(cnt);
+      const onClick = () => {
+        const cnt2 = ref(1);
+        cntRef.value = cnt2;
+      };
+      return {
+        cntRef,
+        onClick,
+      };
+    },
+  };
+  createApp(App).mount('#app');
+</script>
